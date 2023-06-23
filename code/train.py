@@ -18,10 +18,19 @@ learning_rate = 1e-3
 epochs = 200
 forecast = False
 
-def run_model(date_df, trainX, trainY, testX, testY, station, test_yr, model_name):
+def run_model(date_df, 
+              trainX, 
+              trainY, 
+              testX, 
+              testY, 
+              list_n_step=[24],
+              list_lead_time=[1, 6, 12], 
+              station, 
+              test_yr, 
+              model_name):
     model_res = pd.DataFrame(['Model', 'Lag', 'Lead', 'R2', 'RMSE', 'MAE', 'MAX_VAL_ERROR'])
-    for n_steps in [24]:
-        for lead_time in [1, 6, 12]:
+    for n_steps in list_n_step:
+        for lead_time in list_lead_time:
             if forecast:
                 dataset_excel = pd.DataFrame({'Date': date_df[lead_time:-1].reset_index(drop=True), 
                                               'True': testY.iloc[lead_time-1:, 0].reset_index(drop=True)})
