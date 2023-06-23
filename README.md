@@ -8,3 +8,11 @@ This repository includes data and code for the paper "Predicting river water  in
 Recent versions of TensorFlow, numpy, seaborn, statsmodels and sklearn are required. You can install all the required packages using the following command:
 
 	$ pip install -r requirements.txt
+
+### Running the code
+
+Tbd. 
+
+#### Input format
+
+Tbd.
