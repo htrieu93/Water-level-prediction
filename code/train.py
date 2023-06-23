@@ -1,15 +1,6 @@
 import pandas as pd
 import tensorflow as tf 
-import random 
 from .model import LSTM_model, GRU_model, BiLSTM_model
-
-# Reproducibility
-seed = 42
-os.PYTHONHASHSEED = 0
-tf.keras.utils.set_random_seed(seed)
-tf.config.experimental.enable_op_determinism()
-np.random.seed(seed)
-tf.random.set_seed(seed)
 
 # Model params
 n_units = 100
