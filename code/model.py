@@ -3,6 +3,14 @@ from keras.layers import Dense, LSTM, Dropout, GRU, Bidirectional, Input, Flatte
 from tensorflow.keras.models import Model
 import keras
 
+# Reproducibility
+seed = 42
+os.PYTHONHASHSEED = 0
+tf.keras.utils.set_random_seed(seed)
+tf.config.experimental.enable_op_determinism()
+np.random.seed(seed)
+tf.random.set_seed(seed)
+
 def LSTM_model(X, n_units=150):
     model = Sequential()
     model.add(LSTM(n_units, kernel_initializer=keras.initializers.glorot_uniform(seed=seed), input_shape=(X.shape[1], X.shape[2])))
