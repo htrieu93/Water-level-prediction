@@ -73,6 +73,7 @@ data_2020 = MN_data_2020.merge(LM_data_2020, on='Time', how='left')
 # Fill NaN LM 2020 has 2020-12-31 22:59:59.990 instead of 2020-12-31 23:00:00
 data_2020.fillna(0, inplace=True)
 
+# Create t+1 rainfall feature
 data_2012['LM_LeThuy_lead1'] =  data_2012['LM_LeThuy'].shift(periods=-1)
 data_2012['LM_KienGiang_lead1'] =  data_2012['LM_KienGiang'].shift(periods=-1)
 data_2012['LM_DongHoi_lead1'] =  data_2012['LM_DongHoi'].shift(periods=-1)
