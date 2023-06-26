@@ -1,9 +1,6 @@
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import tensorflow as tf 
-import matplotlib.pyplot as plt
-import random as python_random
 import datetime, os
 from sklearn.preprocessing import MinMaxScaler
 
@@ -86,35 +83,24 @@ def feature_engineering(df_2012, df_2020):
   df_2020['LM_DongHoi_lead1'] =  df_2020['LM_DongHoi'].shift(periods=-1)
   return df_2012, df_2020
 
-def create_data_scenario(data_2010, data_2012, data_2016, data_2020, scenario=1):
+def create_data_scenario(data_2010, data_2012, data_2016, data_2020, scenario, feat_col):
   if scenario == 1:
     # Dataset consisting of 3 stations MN (2010, 2012, 2016, 2020)
-    data_2010_a = data_2010[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy']].astype(np.float32)
-    data_2012_a = data_2012[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy']].astype(np.float32)
-    data_2016_a = data_2016[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy']].astype(np.float32)
-    data_2020_a = data_2020[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy']].astype(np.float32)
-    return pd.concat([data_2010_a, data_2012_a, data_2016_a, data_2020_a])
-  elif scenario == 2:
+    res_df = pd.concat([data_2010, data_2012, data_2016, data_2020]).astype(np.float32)
+  elif scenario in [2, 3]:
     # Dataset consisting of 3 stations MN  and LM (2012, 2020)
-    data_2012_b = data_2012[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi']].astype(np.float32)
-    data_2020_b = data_2020[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi']].astype(np.float32)
-    return pd.concat([data_2012_b, data_2020_b])
-  elif scenario == 3:
-    # Dataset consisting of 3 stations MN  and LM and predicted LM (2012, 2020)
-    data_2012_c = data_2012[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi',
-                             'LM_LeThuy_lead1', 'LM_KienGiang_lead1', 'LM_DongHoi_lead1']].astype(np.float32)
-    data_2020_c = data_2020[['H_LeThuy', 'H_KienGiang', 'H_DongHoi', 'H_LeThuy', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi',
-                             'LM_LeThuy_lead1', 'LM_KienGiang_lead1', 'LM_DongHoi_lead1']].astype(np.float32)
-    return pd.concat([data_2012_c, data_2020_c])
+    res_df = pd.concat([data_2012, data_2020]).astype(np.float32)
+  
+  return res_df[feat_col]
 
-def train_test_split(df, train_ratio):
+def train_test_split(df, train_ratio, target_col):
     data_len = df.shape[0]
     train_len = int(data_len*train_ratio)
-    trainX, testX = df.iloc[:train_len, 1:], df.iloc[train_len:, 1:]
-    trainY, testY = df.iloc[:train_len, 0].values.reshape(-1, 1), df.iloc[train_len:, 0].values.reshape(-1, 1)
+    trainX, testX = df.iloc[:train_len], df.iloc[train_len:]
+    trainY, testY = df.iloc[:train_len, target_col].values.reshape(-1, 1), df.iloc[train_len:, target_col].values.reshape(-1, 1)
     return trainX, testX, trainY, testY
 
-def split_sequence(X, y, n_steps, lead_time=1, use_forecast=False):
+def split_sequence(X, y, n_steps, lead_time=1, scenario=1):
     seq_X, seq_Y = list(), list()
     for i in range(len(y)):
     # find the end of this pattern
@@ -126,7 +112,7 @@ def split_sequence(X, y, n_steps, lead_time=1, use_forecast=False):
             break
 
         # gather input and output parts of the pattern
-        if use_forecast:  
+        if scenario == 3:  
             fcst_x = np.concatenate([np.zeros(shape=(n_steps, 3)), np.array(np.cumsum(X[end_ix:end_ix+lead_time, -3:], axis=0)[-1]).reshape((1, -1))], axis=0)
             seq_x, seq_y = np.concatenate([X[i:end_ix+1, :-3], fcst_x], axis=1), y[end_ix+lead_time, -1]
         else:  
@@ -171,4 +157,4 @@ def write_result(model_name, date_df, dataset_df, train_ratio, predY, lead_time,
         dataset_excel = pd.DataFrame({'Date': date_df[int(date_df.shape[0]*train_ratio)+lead_time-1:].reset_index(drop=True), 
                                       'True': dataset_df.iloc[int(dataset_df.shape[0]*train_ratio)+lead_time-1:, 0].reset_index(drop=True), 
                                       f'{model_name}': np.append(np.array([0]*(n_steps+1)), predY.ravel())})
-    dataset_excel.to_excel(f'/content/drive/My Drive/Water level prediction paper/Prediction/{model_name}_SC{scenario}_{lead_time}h_lead_{n_steps}h_lag.xlsx')
+    dataset_excel.to_excel(f'../pred/{model_name}_SC{scenario}_{lead_time}h_lead_{n_steps}h_lag.xlsx')
