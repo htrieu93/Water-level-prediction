@@ -29,3 +29,10 @@ df_2010, df_2012, df_2016, df_2020, date_a, date_b = preprocess_data(df_2010, df
 
 if args.scenario == 3:
   df_2012, df_2020 = feature_engineering(df_2012, df_2020) 
+
+if args.scenario == 1:
+  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, scenario=1)
+elif args.scenario == 2:
+  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, scenario=1)
+elif args.scenario == 3:
+  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, scenario=3)
