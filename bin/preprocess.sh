@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python src/preprocess.py
+python /src/preprocess.py
