@@ -12,37 +12,37 @@ import os, datetime
 
 def load_data(DATA_2010_PATH, DATA_2012_PATH, DATA_2016_PATH, DATA_2020_PATH):
   # Read 2010 data
-  MN_data_2010 = pd.read_excel('../data/XQHh_Nhatle_2010.xlsx', 
+  MN_data_2010 = pd.read_excel(DATA_2010_PATH, 
                                sheet_name='QHh_2010', skiprows=2, 
                                names=['Time', 'Q_KienGiang', 'H_KienGiang', 'H_LeThuy', 'H_DongHoi'])
-  LM_data_2010 = pd.read_excel('../data/XQHh_Nhatle_2010.xlsx', 
+  LM_data_2010 = pd.read_excel(DATA_2010_PATH, 
                                sheet_name='Xh_Oct2Dec_2010', skiprows=2, 
                                names=['Time', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi'])
   
   # Read 2012 data
-  MN_data_2012 = pd.read_excel('../data/XQHh_Nhatle_2012.xlsx', 
+  MN_data_2012 = pd.read_excel(DATA_2012_PATH, 
                                sheet_name='QHh_2012', skiprows=2, 
                                names=['Time', 'Q_KienGiang', 'H_KienGiang', 'H_LeThuy', 'H_DongHoi'])
-  LM_data_2012 = pd.read_excel('../data/XQHh_Nhatle_2012.xlsx', 
+  LM_data_2012 = pd.read_excel(DATA_2012_PATH, 
                                sheet_name='Xh_2012', skiprows=2, usecols='A,F,G,H',
                                names=['Time', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi'])
   
   # Read 2016 data
-  MN_data_2016_1 = pd.read_excel('../data/)XHh_Nhatle_2016.xlsx', 
+  MN_data_2016_1 = pd.read_excel(DATA_2016_PATH, 
                                  sheet_name='H_KG_DH', skiprows=2, 
                                  names=['Time', 'H_KienGiang', 'H_DongHoi'])
-  MN_data_2016_2 = pd.read_excel('../data/)XHh_Nhatle_2016.xlsx', 
+  MN_data_2016_2 = pd.read_excel(DATA_2016_PATH, 
                                  sheet_name='Hh_LeThuy_Oct', skiprows=2, usecols='A,F',
                                  names=['Time', 'H_LeThuy'])
-  LM_data_2016 = pd.read_excel('../data/)XHh_Nhatle_2016.xlsx', 
+  LM_data_2016 = pd.read_excel(DATA_2016_PATH, 
                                sheet_name='Xh_Donghoi_Sep2Nov', skiprows=2, usecols='G,H,I',
                                names=['Date', 'Time', 'LM_DongHoi'])
   
   # Read 2020 data
-  MN_data_2020 = pd.read_excel('../data/XQHh_Nhatle_2020.xlsx', 
+  MN_data_2020 = pd.read_excel(DATA_2020_PATH, 
                                sheet_name='QHh_2020', skiprows=2, 
                                names=['Time', 'Q_KienGiang', 'H_KienGiang', 'H_LeThuy', 'H_DongHoi'])
-  LM_data_2020 = pd.read_excel('../data/XQHh_Nhatle_2020.xlsx', 
+  LM_data_2020 = pd.read_excel(DATA_2020_PATH, 
                                sheet_name='Xh_2020', skiprows=2,  
                                names=['Time', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi'])
 
