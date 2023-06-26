@@ -27,12 +27,20 @@ logger.debug(f'{df_2010.shape}')
 
 df_2010, df_2012, df_2016, df_2020, date_a, date_b = preprocess_data(df_2010, df_2012, df_2016, df_2020)
 
+# Create leading rainfall features for Scenario 3
 if args.scenario == 3:
   df_2012, df_2020 = feature_engineering(df_2012, df_2020) 
 
 if args.scenario == 1:
-  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, scenario=1)
+  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, 
+                                 scenario=args.scenario,
+                                 feat_col=['H_KienGiang', 'H_DongHoi', 'H_LeThuy'])
 elif args.scenario == 2:
-  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, scenario=1)
+  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020,
+                                 scenario=args.scenario, 
+                                 feat_col=['H_KienGiang', 'H_DongHoi', 'H_LeThuy', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi'])
 elif args.scenario == 3:
-  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, scenario=3)
+  dataset = create_data_scenario(df_2010, df_2012, df_2016, df_2020, 
+                                 scenario=args.scenario,
+                                 feat_col=['H_KienGiang', 'H_DongHoi', 'H_LeThuy', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi',
+                                           'LM_LeThuy_lead1', 'LM_KienGiang_lead1', 'LM_DongHoi_lead1'])
