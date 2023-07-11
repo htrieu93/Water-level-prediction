@@ -8,13 +8,11 @@ import os, datetime, pickle
 from sklearn.preprocessing import MinMaxScaler
 
 def load_data(DATA_2010_PATH, DATA_2012_PATH, DATA_2016_PATH, DATA_2020_PATH):
+    os.chdir(os.getcwd() + "/data/")
     # Read 2010 data
     MN_data_2010 = pd.read_excel(DATA_2010_PATH,
                                sheet_name='QHh_2010', skiprows=2,
                                names=['Time', 'Q_KienGiang', 'H_KienGiang', 'H_LeThuy', 'H_DongHoi'])
-    LM_data_2010 = pd.read_excel(DATA_2010_PATH,
-                               sheet_name='Xh_Oct2Dec_2010', skiprows=2,
-                               names=['Time', 'LM_KienGiang', 'LM_LeThuy', 'LM_DongHoi'])
 
     # Read 2012 data
     MN_data_2012 = pd.read_excel(DATA_2012_PATH,
@@ -31,9 +29,6 @@ def load_data(DATA_2010_PATH, DATA_2012_PATH, DATA_2016_PATH, DATA_2020_PATH):
     MN_data_2016_2 = pd.read_excel(DATA_2016_PATH,
                                  sheet_name='Hh_LeThuy_Oct', skiprows=2, usecols='A,F',
                                  names=['Time', 'H_LeThuy'])
-    LM_data_2016 = pd.read_excel(DATA_2016_PATH,
-                               sheet_name='Xh_Donghoi_Sep2Nov', skiprows=2, usecols='G,H,I',
-                               names=['Date', 'Time', 'LM_DongHoi'])
 
     # Read 2020 data
     MN_data_2020 = pd.read_excel(DATA_2020_PATH,
@@ -45,26 +40,26 @@ def load_data(DATA_2010_PATH, DATA_2012_PATH, DATA_2016_PATH, DATA_2020_PATH):
 
     # Concatenate 2 parts of MN of 2016
     MN_data_2016 = MN_data_2016_1.merge(MN_data_2016_2, on='Time')
+    return MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020
+  
+def preprocess_data(MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020, scenario):
+    # Convert Time column to datetime
+    for df in [MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020]:
+        df['Time'] = pd.to_datetime(df['Time'])
 
     # Concat water level and rainfall features (only for 2012, 2020 since 2010, 2016 don't have rainfall data)
     df_2012 = MN_data_2012.merge(LM_data_2012, on='Time', how='left')
     df_2020 = MN_data_2020.merge(LM_data_2020, on='Time', how='left')
 
-    return MN_data_2010, df_2012, MN_data_2016, df_2020
-  
-def preprocess_data(df_2010, df_2012, df_2016, df_2020, scenario):
     # Simulate rainfall of 02/2012 using rainfall of 02/2020
-    LM_data_2012_Feb = df_2020.loc[(df_2020['Time']>='2/1/2020') & (df_2020['Time']<'3/1/2020')]
+    LM_data_2012_Feb = df_2020.loc[(df_2020['Time']>='2/1/2020') &
+                                   (df_2020['Time']<'3/1/2020')]
     LM_data_2012_Feb['Time'] = LM_data_2012_Feb['Time'].apply(lambda x: x.replace(year=2012))
     df_2012 = pd.concat([df_2012, LM_data_2012_Feb]).sort_values('Time')
 
     # Convert water level of 2012 from cm to m
     for col in ['H_KienGiang', 'H_LeThuy', 'H_DongHoi']:
         df_2012[col] = df_2012[col] / 100
-
-    # Convert Time column to datetime
-    for df in [df_2010, df_2012, df_2016, df_2020]:
-        df['Time'] = pd.to_datetime(df['Time'])
 
     # Fill NaN rainfall 2020 has 2020-12-31 22:59:59.990 instead of 2020-12-31 23:00:00
     df_2020.fillna(0, inplace=True)
@@ -147,18 +142,13 @@ def preprocess_data(trainX, testX, trainY, testY, date, n_steps, lead_time, scen
     trainX_rescale_lst = []
     trainY_rescale_lst = []
     for i in range(len(year_idx) - 1):
+        trainX_rescale, trainY_rescale = split_sequence(trainX_rescale[year_idx[i]:year_idx[i+1]],
+                                                        trainY_rescale[year_idx[i]:year_idx[i+1]], n_steps, lead_time)
+        trainX_rescale_lst.append(trainX_rescale)
+        trainY_rescale_lst.append(trainY_rescale)
 
-    trainX_rescale_2010, trainY_rescale_2010 = split_sequence(trainX_rescale[:len_data_2010],
-                                                              trainY_rescale[:len_data_2010], n_steps, lead_time)
-    trainX_rescale_2012, trainY_rescale_2012 = split_sequence(
-        trainX_rescale[len_data_2010:len_data_2010 + len_data_2012],
-        trainY_rescale[len_data_2010:len_data_2010 + len_data_2012], n_steps, lead_time)
-    trainX_rescale_2020, trainY_rescale_2020 = split_sequence(trainX_rescale[len_data_2010 + len_data_2012:],
-                                                              trainY_rescale[len_data_2010 + len_data_2012:], n_steps,
-                                                              lead_time)
-
-    trainX_rescale = np.concatenate((trainX_rescale_2010, trainX_rescale_2012, trainX_rescale_2020))
-    trainY_rescale = np.concatenate((trainY_rescale_2010, trainY_rescale_2012, trainY_rescale_2020))
+    trainX_rescale = np.concatenate(trainX_rescale_lst)
+    trainY_rescale = np.concatenate(trainY_rescale_lst)
     testX_rescale, testY_rescale = split_sequence(testX_rescale, testY_rescale, n_steps, lead_time)
 
     trainX_rescale = trainX_rescale.reshape((trainX_rescale.shape[0], trainX_rescale.shape[2], trainX_rescale.shape[1]))
