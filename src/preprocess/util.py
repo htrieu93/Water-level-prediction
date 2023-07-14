@@ -42,7 +42,7 @@ def load_data(DATA_2010_PATH, DATA_2012_PATH, DATA_2016_PATH, DATA_2020_PATH):
     MN_data_2016 = MN_data_2016_1.merge(MN_data_2016_2, on='Time')
     return MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020
   
-def preprocess_data(MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020, scenario):
+def clean_data(MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020, scenario):
     # Convert Time column to datetime
     for df in [MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020]:
         df['Time'] = pd.to_datetime(df['Time'])
@@ -97,11 +97,11 @@ def train_test_split(df, train_ratio, target_col):
     trainY, testY = df.iloc[:train_len, target_col].values.reshape(-1, 1), df.iloc[train_len:, target_col].values.reshape(-1, 1)
     return trainX, testX, trainY, testY
 
-def split_sequence(X, y, n_steps, lead_time=1, scenario=1):
+def split_sequence(X, y, lag_time, lead_time=1, scenario=1):
     seqX, seqY = list(), list()
     for i in range(len(y)):
     # find the end of this pattern
-        end_ix = i + n_steps
+        end_ix = i + lag_time
         # check if we are beyond the sequence
         if use_forecast and end_ix+lead_time+1 > len(y)-1:
             break
@@ -110,7 +110,7 @@ def split_sequence(X, y, n_steps, lead_time=1, scenario=1):
 
         # gather input and output parts of the pattern
         if scenario == 3:  
-            fcst_x = np.concatenate([np.zeros(shape=(n_steps, 3)), np.array(np.cumsum(X[end_ix:end_ix+lead_time, -3:], axis=0)[-1]).reshape((1, -1))], axis=0)
+            fcst_x = np.concatenate([np.zeros(shape=(lag_time, 3)), np.array(np.cumsum(X[end_ix:end_ix+lead_time, -3:], axis=0)[-1]).reshape((1, -1))], axis=0)
             seqx, seqy = np.concatenate([X[i:end_ix+1, :-3], fcst_x], axis=1), y[end_ix+lead_time, -1]
         else:  
             seqx, seqy = X[i:end_ix+1], y[end_ix+lead_time, -1]
@@ -130,25 +130,32 @@ def min_max_scale(trainX, trainY, testX, testY):
     testY_rescale = target_rescaler.transform(testY)
     return trainX_rescale, testX_rescale, trainY_rescale, testY_rescale
 
-def preprocess_data(trainX, testX, trainY, testY, date, n_steps, lead_time, scenario):
+def preprocess_data(df, date, label, lag_time, lead_time, train_ratio):
+    logger.info('Creating training and testing set...')
+    trainX, testX, trainY, testY = train_test_split(df, train_ratio=train_ratio, target_col=label)
+
+    logger.info('Scaling data...')
     trainX_rescale, testX_rescale, trainY_rescale, testY_rescale = min_max_scale(trainX, testX, trainY, testY)
 
+    logger.info('Splitting data into sequences for deep learning model')
     year_len = []
     year_idx = 0
     for year in pd.DatetimeIndex(date).year.unique():
-        year_idx =  date.loc[pd.DatetimeIndex(date).year == year].shape[0] + year_idx
+        year_idx = date.loc[pd.DatetimeIndex(date).year == year].shape[0] + year_idx
         year_len.append(year_idx)
 
+    # Splitting sequence for training set by year
     trainX_rescale_lst = []
     trainY_rescale_lst = []
     for i in range(len(year_idx) - 1):
-        trainX_rescale, trainY_rescale = split_sequence(trainX_rescale[year_idx[i]:year_idx[i+1]],
-                                                        trainY_rescale[year_idx[i]:year_idx[i+1]], n_steps, lead_time)
+        trainX_rescale, trainY_rescale = split_sequence(trainX_rescale[year_idx[i]:year_idx[i + 1]],
+                                                        trainY_rescale[year_idx[i]:year_idx[i + 1]], lag_time, lead_time)
         trainX_rescale_lst.append(trainX_rescale)
         trainY_rescale_lst.append(trainY_rescale)
-
     trainX_rescale = np.concatenate(trainX_rescale_lst)
     trainY_rescale = np.concatenate(trainY_rescale_lst)
+
+    # Splitting sequence for testing set
     testX_rescale, testY_rescale = split_sequence(testX_rescale, testY_rescale, n_steps, lead_time)
 
     trainX_rescale = trainX_rescale.reshape((trainX_rescale.shape[0], trainX_rescale.shape[2], trainX_rescale.shape[1]))
