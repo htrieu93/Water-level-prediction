@@ -16,7 +16,7 @@ n_units = 100
 dropout = .2
 learning_rate = 1e-3
 epochs = 200
-forecast = False
+batchsize = 256
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger('loggers')
@@ -30,7 +30,7 @@ parser.add_argument('-m', '--model')
 
 args = parser.parse_args()
 
-def train_model(trainX, testX, trainY, testY, trueY, model_name, pretrain=False):
+def train_model(trainX, trainY, testX, testY, trueY, model_name, pretrain=False):
 
     if model_name == 'LSTM':
         model = LSTM_model(trainX)
@@ -47,11 +47,11 @@ def train_model(trainX, testX, trainY, testY, trueY, model_name, pretrain=False)
     callback = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=3)
     history = model.fit(trainX, trainY,
                         epochs=epochs,
-                        batch_size=256, validation_data=(testX, testY), verbose=0,
+                        batch_size=batchsize, validation_data=(testX, testY), verbose=0,
                         shuffle=False,
                         callbacks=[callback])
 
-    predY = model.predict(testX_rescale)
+    predY = model.predict(testX)
     r2, rmse, mae, max_val_error = calculate_loss(trueY[n_steps+lead_time:], predY)
     logger.info('Metrics: ')
     logger.info(f'R^2: {r2}')
@@ -68,11 +68,12 @@ def predict(model_weights_path):
 
 if __name__ == '__main__':
     # Load data
-    trainX = load_csv('x_train_rescale.csv', np.float32)
-    trainY = load_csv('y_train_rescale.csv', np.float32)
-    testX = load_csv('x_test_rescale.csv', np.float32)
-    testY = load_csv('y_test_rescale.csv', np.float32)
-    trueY = load_csv('y_test.csv', np.float32)
+    os.chdir(os.getcwd() + r'/data/postprocess')
+    trainX = pickle.load(open('x_train_rescale.pkl', 'rb'))
+    trainY = pickle.load(open('y_train_rescale.pkl', 'rb'))
+    testX = pickle.load(open('x_test_rescale.pkl', 'rb'))
+    testY = pickle.load(open('y_test_rescale.pkl', 'rb'))
+    trueY = pickle.load(open('y_test.pkl', 'rb'))
 
     train_model(trainX, trainY, testX, testY, trueY,
                 model_name=args.model,

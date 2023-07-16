@@ -1,13 +1,7 @@
 import pandas as pd
-
-def load_csv(dest_file, dtype):
-    os.chdir(os.getcwd() + "/data/postprocess")
-    with open(dest_file, 'r') as dest_f:
-        data_iter = csv.reader(dest_f,
-                               delimiter=',',
-                               quotechar='"')
-        data = [data for data in data_iter]
-    return np.asarray(data, dtype=dtype)
+import numpy as np
+import csv
+import os
 
 def write_result(model_name, date_df, dataset_df, train_ratio, predY, lead_time, n_steps, forecast, scenario):
     if forecast:

@@ -182,10 +182,10 @@ def preprocess_data(df, date, label, n_steps, lead_time, train_ratio, scenario):
     trainX_rescale = trainX_rescale.reshape((trainX_rescale.shape[0], trainX_rescale.shape[2], trainX_rescale.shape[1]))
     testX_rescale = testX_rescale.reshape((testX_rescale.shape[0], testX_rescale.shape[2], testX_rescale.shape[1]))
 
-    trainX_rescale.tofile('../postprocess/x_train_rescale.csv', sep=',')
-    trainY_rescale.tofile('../postprocess/y_train_rescale.csv', sep=',')
-    testX_rescale.tofile('../postprocess/x_test_rescale.csv', sep=',')
-    testY_rescale.tofile('../postprocess/y_test_rescale.csv', sep=',')
-    testY.tofile('../postprocess/y_test.csv', sep=',')
+    pickle.dump(trainX_rescale, open('../postprocess/x_train_rescale.pkl', 'wb'))
+    pickle.dump(trainY_rescale, open('../postprocess/y_train_rescale.pkl', 'wb'))
+    pickle.dump(testX_rescale, open('../postprocess/x_test_rescale.pkl', 'wb'))
+    pickle.dump(testY_rescale, open('../postprocess/y_test_rescale.pkl', 'wb'))
+    pickle.dump(testY, open('../postprocess/y_test.pkl', 'wb'))
 
 
