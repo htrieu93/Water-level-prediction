@@ -29,21 +29,11 @@ if [[ -z "$lead_time" ]]; then
     lead_time=1   # if True then use pretrained model, else train new model
 fi
 
-if [[ -z "$pretrain" ]]; then
-    pretrain=True   # if True then use pretrained model, else train new model
-fi
-
-if [[ -z "$model" ]]; then
-    model=None   # if True then use pretrained model, else train new model
-fi
-
 echo "scenario: $scenario"
 echo "target: $target"
 echo "lag_time: $n_steps"
 echo "lead_time: $lead_time"
 echo "scenario: $scenario"
-echo "pretrain: $pretrain"
-echo "model: $model"
 
-python ${PWD}/src/preprocess/preprocess.py --s $scenario --t $target --n $n_steps --l $lead_time --p $pretrain --m $model \
+python ${PWD}/src/preprocess/preprocess.py --s $scenario --t $target --n $n_steps --l $lead_time \
         > logs/preprocess_`date '+%s'` 2>&1

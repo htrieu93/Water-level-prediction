@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
-import tensorflow as tf
 import pandas as pd
-
-import os, datetime, pickle
-
+import os
+import datetime
+import pickle
 from sklearn.preprocessing import MinMaxScaler
 
+pd.options.mode.chained_assignment = None
+
 def load_data(DATA_2010_PATH, DATA_2012_PATH, DATA_2016_PATH, DATA_2020_PATH):
-    os.chdir(os.getcwd() + "/data/")
+    os.chdir(os.getcwd() + "/data/raw")
     # Read 2010 data
     MN_data_2010 = pd.read_excel(DATA_2010_PATH,
                                sheet_name='QHh_2010', skiprows=2,
@@ -41,7 +42,7 @@ def load_data(DATA_2010_PATH, DATA_2012_PATH, DATA_2016_PATH, DATA_2020_PATH):
     # Concatenate 2 parts of MN of 2016
     MN_data_2016 = MN_data_2016_1.merge(MN_data_2016_2, on='Time')
     return MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020
-  
+
 def clean_data(MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020, scenario):
     # Convert Time column to datetime
     for df in [MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2020, LM_data_2020]:
@@ -65,11 +66,19 @@ def clean_data(MN_data_2010, MN_data_2012, LM_data_2012, MN_data_2016, MN_data_2
     df_2020.fillna(0, inplace=True)
 
     if scenario == 1:
-        date = pd.concat([df_2010['Time'], df_2012['Time'], df_2016['Time'], df_2020['Time']])
-        return df_2010, df_2012, df_2016, df_2020, date
+        date = pd.concat([MN_data_2010['Time'], df_2012['Time'], MN_data_2016['Time'], df_2020['Time']])
+        MN_data_2010.drop(columns=['Time'], inplace=True)
+        df_2012.drop(columns=['Time'], inplace=True)
+        MN_data_2016.drop(columns=['Time'], inplace=True)
+        df_2020.drop(columns=['Time'], inplace=True)
+
+        return MN_data_2010, df_2012, MN_data_2016, df_2020, date
     elif scenario in [2, 3]:
         date = pd.concat([df_2012['Time'], df_2020['Time']])
-        return df_2012, df_2020, date
+        df_2012.drop(columns=['Time'], inplace=True)
+        df_2020.drop(columns=['Time'], inplace=True)
+
+        return None, df_2012, None, df_2020, date
 
 def feature_engineering(df_2012, df_2020):
     # Create t+1 rainfall feature
@@ -94,8 +103,19 @@ def train_test_split(df, train_ratio, target_col):
     data_len = df.shape[0]
     train_len = int(data_len*train_ratio)
     trainX, testX = df.iloc[:train_len], df.iloc[train_len:]
-    trainY, testY = df.iloc[:train_len, target_col].values.reshape(-1, 1), df.iloc[train_len:, target_col].values.reshape(-1, 1)
+    trainY, testY = df.iloc[:train_len][target_col].values.reshape(-1, 1), df.iloc[train_len:][target_col].values.reshape(-1, 1)
     return trainX, testX, trainY, testY
+
+def min_max_scale(trainX, trainY, testX, testY):
+    feat_rescaler = MinMaxScaler().fit(trainX)
+    target_rescaler = MinMaxScaler().fit(trainY)
+    pickle.dump(target_rescaler, open(r'../../src/pkld/target_rescaler.pkl', 'wb'))
+
+    trainX_rescale = feat_rescaler.transform(trainX)
+    testX_rescale = feat_rescaler.transform(testX)
+    trainY_rescale = target_rescaler.transform(trainY)
+    testY_rescale = target_rescaler.transform(testY)
+    return trainX_rescale, testX_rescale, trainY_rescale, testY_rescale
 
 def split_sequence(X, y, lag_time, lead_time=1, scenario=1):
     seqX, seqY = list(), list()
@@ -103,7 +123,7 @@ def split_sequence(X, y, lag_time, lead_time=1, scenario=1):
     # find the end of this pattern
         end_ix = i + lag_time
         # check if we are beyond the sequence
-        if use_forecast and end_ix+lead_time+1 > len(y)-1:
+        if scenario == 3 and end_ix+lead_time+1 > len(y)-1:
             break
         elif end_ix+lead_time > len(y)-1:
             break
@@ -119,56 +139,53 @@ def split_sequence(X, y, lag_time, lead_time=1, scenario=1):
         seqY.append(seqy)
     return np.array(seqX), np.array(seqY)
 
-def min_max_scale(trainX, trainY, testX, testY):
-    feat_rescaler = MinMaxScaler().fit(trainX)
-    target_rescaler = MinMaxScaler().fit(trainY)
-    pickle.dump(target_rescaler, open('./pkld/target_rescale', 'wb'))
+def split_data_by_year(X, Y, lag_time, lead_time, scenario, year_len):
+    X_lst = []
+    Y_lst = []
+    for i in range(len(year_len) - 1):
+        split_X, split_Y = split_sequence(X[year_len[i]:year_len[i + 1]],
+                                          Y[year_len[i]:year_len[i + 1]],
+                                          lag_time, lead_time, scenario=scenario)
+        X_lst.append(split_X)
+        Y_lst.append(split_Y)
 
-    trainX_rescale = feat_rescaler.transform(trainX) 
-    testX_rescale = feat_rescaler.transform(testX) 
-    trainY_rescale = target_rescaler.transform(trainY) 
-    testY_rescale = target_rescaler.transform(testY)
-    return trainX_rescale, testX_rescale, trainY_rescale, testY_rescale
+    X_res = np.concatenate(X_lst)
+    Y_res = np.concatenate(Y_lst)
+    return X_res, Y_res
 
-def preprocess_data(df, date, label, lag_time, lead_time, train_ratio):
-    logger.info('Creating training and testing set...')
+def preprocess_data(df, date, label, n_steps, lead_time, train_ratio, scenario):
     trainX, testX, trainY, testY = train_test_split(df, train_ratio=train_ratio, target_col=label)
 
-    logger.info('Scaling data...')
-    trainX_rescale, testX_rescale, trainY_rescale, testY_rescale = min_max_scale(trainX, testX, trainY, testY)
-
-    logger.info('Splitting data into sequences for deep learning model')
-    year_len = []
-    year_idx = 0
-    for year in pd.DatetimeIndex(date).year.unique():
-        year_idx = date.loc[pd.DatetimeIndex(date).year == year].shape[0] + year_idx
-        year_len.append(year_idx)
+    # Rescale data by min-max
+    trainX, testX, trainY, testY = min_max_scale(trainX, trainY, testX, testY)
 
     # Splitting sequence for training set by year
-    trainX_rescale_lst = []
-    trainY_rescale_lst = []
-    for i in range(len(year_idx) - 1):
-        trainX_rescale, trainY_rescale = split_sequence(trainX_rescale[year_idx[i]:year_idx[i + 1]],
-                                                        trainY_rescale[year_idx[i]:year_idx[i + 1]], lag_time, lead_time)
-        trainX_rescale_lst.append(trainX_rescale)
-        trainY_rescale_lst.append(trainY_rescale)
-    trainX_rescale = np.concatenate(trainX_rescale_lst)
-    trainY_rescale = np.concatenate(trainY_rescale_lst)
+    year_idx = 0
+    train_year_len = [year_idx]
+    for year in pd.DatetimeIndex(date).year.unique():
+        year_idx = date.loc[pd.DatetimeIndex(date).year == year].shape[0] + year_idx
+        if year_idx <= trainX.shape[0]:
+            train_year_len.append(year_idx)
+        else:
+            train_year_len.append(trainX.shape[0])
+    trainX_rescale, trainY_rescale = split_data_by_year(trainX, trainY, n_steps, lead_time, scenario, train_year_len)
 
     # Splitting sequence for testing set
-    testX_rescale, testY_rescale = split_sequence(testX_rescale, testY_rescale, n_steps, lead_time)
+    year_idx = 0
+    test_year_len = [year_idx]
+    for year in pd.DatetimeIndex(date).year.unique():
+        year_idx = date.loc[pd.DatetimeIndex(date).year == year].shape[0] + year_idx
+        if year_idx - trainX.shape[0] > 0:
+            test_year_len.append(year_idx - trainX.shape[0])
+    testX_rescale, testY_rescale = split_data_by_year(testX, testY, n_steps, lead_time, scenario, test_year_len)
 
     trainX_rescale = trainX_rescale.reshape((trainX_rescale.shape[0], trainX_rescale.shape[2], trainX_rescale.shape[1]))
     testX_rescale = testX_rescale.reshape((testX_rescale.shape[0], testX_rescale.shape[2], testX_rescale.shape[1]))
-    return trainX_rescale, testX_rescale, trainY_rescale, testY_rescale, testY, target_rescaler
 
-def write_result(model_name, date_df, dataset_df, train_ratio, predY, lead_time, n_steps, forecast, scenario):
-    if forecast:
-        dataset_excel = pd.DataFrame({'Date': date_df[int(date_df.shape[0]*train_ratio)+lead_time:-1].reset_index(drop=True), 
-                                      'True': dataset_df.iloc[int(dataset_df.shape[0]*train_ratio)+lead_time-1:, 0].reset_index(drop=True), 
-                                      f'{model_name}': np.append(np.array([0]*(n_steps+1)), predY.ravel())})
-    else:
-        dataset_excel = pd.DataFrame({'Date': date_df[int(date_df.shape[0]*train_ratio)+lead_time-1:].reset_index(drop=True), 
-                                      'True': dataset_df.iloc[int(dataset_df.shape[0]*train_ratio)+lead_time-1:, 0].reset_index(drop=True), 
-                                      f'{model_name}': np.append(np.array([0]*(n_steps+1)), predY.ravel())})
-    dataset_excel.to_excel(f'../pred/{model_name}_SC{scenario}_{lead_time}h_lead_{n_steps}h_lag.xlsx')
+    trainX_rescale.tofile('../postprocess/x_train_rescale.csv', sep=',')
+    trainY_rescale.tofile('../postprocess/y_train_rescale.csv', sep=',')
+    testX_rescale.tofile('../postprocess/x_test_rescale.csv', sep=',')
+    testY_rescale.tofile('../postprocess/y_test_rescale.csv', sep=',')
+    testY.tofile('../postprocess/y_test.csv', sep=',')
+
+

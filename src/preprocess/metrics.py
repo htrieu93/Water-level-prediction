@@ -1,5 +1,5 @@
-from sklearn.metrics import r2_score, mean_absolute_error, max_error, mean_squared_error
 import tensorflow as tf
+from sklearn.metrics import r2_score, mean_absolute_error, max_error, mean_squared_error
 
 def get_max_error(y_test, y_pred):
     return abs(y_test - y_pred).max().values[0]
