@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(
                     prog='WaterLevelPrediction',
                     description='Preprocessing data for the water prediction paper')
 
-parser.add_argument('-p', '--pretrain', action='store_true')
+parser.add_argument('-p', '--pretrain')
 parser.add_argument('-m', '--model')
 parser.add_argument('-n', '--n_steps', type=int)
 parser.add_argument('-l', '--lead_time', type=int)
@@ -34,7 +34,7 @@ parser.add_argument('-l', '--lead_time', type=int)
 args = parser.parse_args()
 
 def train_model(trainX, trainY, testX, testY, trueY, model_name,
-                pretrain=True, n_units=n_units, dropout=dropout,
+                pretrain=False, n_units=n_units, dropout=dropout,
                 lr=learning_rate, epochs=epochs, batch_size=batch_size):
 
     if model_name == 'LSTM':
@@ -46,7 +46,7 @@ def train_model(trainX, trainY, testX, testY, trueY, model_name,
 
     if pretrain:
         logger.info('Loading pretrain model...')
-        model = tf.keras.models.load_model(f'../../model/{model_name}.h5')
+        model = keras.models.load(f'../../model/{model_name}_new.h5')
     else:
         logger.info('Training model...')
         model.compile(loss='mse', optimizer=tf.keras.optimizers.Adam(learning_rate=lr))

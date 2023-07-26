@@ -11,10 +11,6 @@ do
     esac
 done
 
-if [[ -z "$pretrain" ]]; then
-    pretrain=False   # if True then use pretrained model, else train new model
-fi
-
 if [[ -z "$model" ]]; then
     model='LSTM'   # if True then use pretrained model, else train new model
 fi

@@ -1,0 +1,15 @@
+2023-07-26 20:11:48.606064: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE SSE2 SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-07-26 20:11:48,928 [INFO] train.py: Loading pretrain model...
+Traceback (most recent call last):
+  File "D:\Water-level-prediction\src\train\train.py", line 84, in <module>
+    train_model(trainX, trainY, testX, testY, trueY,
+  File "D:\Water-level-prediction\src\train\train.py", line 49, in train_model
+    model = tf.keras.models.load_model(f'../../model/{model_name}.h5')
+  File "d:\anaconda3\lib\site-packages\keras\src\saving\saving_api.py", line 238, in load_model
+    return legacy_sm_saving_lib.load_model(
+  File "d:\anaconda3\lib\site-packages\keras\src\utils\traceback_utils.py", line 70, in error_handler
+    raise e.with_traceback(filtered_tb) from None
+  File "d:\anaconda3\lib\site-packages\keras\src\saving\legacy\save.py", line 234, in load_model
+    raise IOError(
+OSError: No file or directory found at ../../model/LSTM.h5
