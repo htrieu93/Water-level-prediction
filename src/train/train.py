@@ -80,7 +80,7 @@ if __name__ == '__main__':
     testX = pickle.load(open('x_test_rescale.pkl', 'rb'))
     testY = pickle.load(open('y_test_rescale.pkl', 'rb'))
     trueY = pickle.load(open('y_test.pkl', 'rb'))
-
+    logger.info(args.pretrain)
     train_model(trainX, trainY, testX, testY, trueY,
                 model_name=args.model,
                 pretrain=args.pretrain)
