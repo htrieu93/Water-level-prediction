@@ -11,7 +11,9 @@ Recent versions of TensorFlow, keras and sklearn are required. You can install a
 
 ### Running the code
 
-Tbd. 
+The preprocess.sh script is used to preprocess raw inputs (including historical data of rainfall and water level for the 3 stations Kien Giang, Dong Hoi, Le Thuy. The following parameters are available to create different data scenarios, length of inputs, and number of timesteps ahead of prediction: 
+* `--scenario` -- Used to create different data scenarios in our paper (Scenario 1: Only use historical water level data, Scenario 2: Use historical water level and rainfall data, and Scenario 3: Use hitorical water level, rainfall, and average predicting rainfall data)
+* `--target` -- Used to specify the target columns. Our paper has experimented with 
 
 #### Input format
 
