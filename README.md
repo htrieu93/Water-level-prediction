@@ -9,6 +9,11 @@ Recent versions of TensorFlow, keras and sklearn are required. You can install a
 
 	$ pip install -r requirements.txt
 
+### Installing the code
+
+	$ cd /folder/containing/the/project
+ 	$ pip install -e Water-level-prediction 
+
 ### Running the code
 
 The preprocess.sh script is used to preprocess raw inputs (including historical data of rainfall and water level for the 3 stations Kien Giang, Dong Hoi, and Le Thuy. The following parameters are available to create different data scenarios, length of inputs, and number of timesteps ahead of prediction: 
