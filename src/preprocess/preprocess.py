@@ -55,8 +55,7 @@ def main():
 
     # Visualization
     plot_pacf(dataset) # Plot Partial Autocorrelation Function chart
-    plot_avg_water_level()
-
+    plot_avg_water_level(dataset, date, args.target) # Plot Average Water Level of Target
 
     # Generating inputs and output for modelling
     trainX, testX, trainY, testY = train_test_split(dataset, train_ratio=.8, target_col=args.target)

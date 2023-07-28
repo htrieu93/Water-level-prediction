@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import pandas as pd
 from statsmodels.graphics.tsaplots import plot_pacf
 
 def plot_pacf(df, lags=20):
@@ -13,7 +14,10 @@ def plot_pacf(df, lags=20):
     ax.set_title(None)
     plt.savefig('../../pacf_plot.png')
 
-def plot_avg_water_level(df, months, avg_water_lvl):
+def plot_avg_water_level(df, date_df, target_col):
+    avg_water_level = pd.concat([df[target_col], date_df], axis=1)
+    avg_water_level['Month'] = avg_water_level['Time'].dt.month
+
     first_warning_level = 1.2
     second_warning_level = 2.2
     third_warning_level = 2.7
