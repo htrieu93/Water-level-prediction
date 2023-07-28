@@ -7,13 +7,16 @@ while getopts s:t:n:l:p:m:h flag
 do
     case "${flag}" in
         s) # Specify scenario used for data processing (1/2/3)
-          scenario=${OPTARG};;
+        scenario=${OPTARG}
+        ;;
         t) # Specify the target variable used for training and prediction ("H_LeThuy", "H_DongHoi", "H_KienGiang")
-          target=${OPTARG};;
+        target=${OPTARG}
+        ;;
         n) # Specify the number of time lags for the features
-          n_steps=${OPTARG};;
+        n_steps=${OPTARG}
+        ;;
         l) # Specify the number of time leads for the target variable
-          lead_time=${OPTARG}
+        lead_time=${OPTARG}
         ;;
         h) # Display help
         usage
