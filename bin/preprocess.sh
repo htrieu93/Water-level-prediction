@@ -1,15 +1,24 @@
 #!/bin/bash
 export PYTHONPATH="${PYTHONPATH}:${PWD}"
 
-while getopts s:t:n:l:p:m flag
+usage() { echo "$0 usage:" && grep " .)\ #" $0; exit 0; }
+
+while getopts s:t:n:l:p:m:h flag
 do
     case "${flag}" in
-        s) scenario=${OPTARG};;
-        t) target=${OPTARG};;
-        n) n_steps=${OPTARG};;
-        l) lead_time=${OPTARG};;
-        p) pretrain=${OPTARG};;
-        m) model=${OPTARG};;
+        s) # Specify scenario used for data processing (1/2/3)
+          scenario=${OPTARG};;
+        t) # Specify the target variable used for training and prediction ("H_LeThuy", "H_DongHoi", "H_KienGiang")
+          target=${OPTARG};;
+        n) # Specify the number of time lags for the features
+          n_steps=${OPTARG};;
+        l) # Specify the number of time leads for the target variable
+          lead_time=${OPTARG}
+        ;;
+        h) # Display help
+        usage
+        exit 0
+        ;;
     esac
 done
 

@@ -1,6 +1,8 @@
 #!/bin/bash
 export PYTHONPATH="${PYTHONPATH}:${PWD}"
+
 usage() { echo "$0 usage:" && grep " .)\ #" $0; exit 0; }
+
 while getopts m:p:n:l:h flag
 do
     case "${flag}" in
@@ -26,16 +28,16 @@ done
 if ! [[ $model =~ ^(LSTM|Bi-LSTM|GRU)$ ]]; then
     echo "Model needs to be LSTM/Bi-LSTM/GRU, $model found instead"
     exit 0
-elif [[ -z "$m" ]]; then
+elif [[ -z "$model" ]]; then
     model='LSTM'   # if True then use pretrained model, else train new model
     echo "Empty string"
 fi
 
-if [[ -z "${n}" ]]; then
+if [[ -z "$n_steps" ]]; then
     n_steps=3   # if True then use pretrained model, else train new model
 fi
 
-if [[ -z "${l}" ]]; then
+if [[ -z "$lead_time" ]]; then
     lead_time=1   # if True then use pretrained model, else train new model
 fi
 
