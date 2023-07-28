@@ -38,10 +38,10 @@ The train.sh script is used to train and evaluate 03 types of RNN models (LSTM, 
 * `--n` -- Specify the number of time lags used for the features (Default value: 3)
 * `--l` -- Specify the number of time leads used for the target variable (Default value: 1)
 
-Example of training a new model
+Example of training a new model. The model will be saved as an HDF5 object in the /model folder under the name `<LSTM/Bi-LSTM/GRU>_<n>_lag_<l>_lead.h5`
 
  	$ bash bin/train.sh -m "LSTM" -n 3 -l 1
 
-Including the `--p` flag will indicate the use of a pretrained model (Saved in the /model folder
+Including the `--p` flag will indicate the use of a pretrained model
 
  	$ bash bin/train.sh -p -m "Bi-LSTM" -n 3 -l 1
