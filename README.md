@@ -28,7 +28,8 @@ The preprocess.sh script is used to preprocess raw inputs (including historical 
 * `--n` -- Specify the number of time lags used for the features (Default value: 3)
 * `--l` -- Specify the number of time leads used for the target variable (Default value: 1)
 
-	$ # Example of preprocess.sh run
+Example of running preprocess.sh
+
 	$ bash bin/preprocess.sh -s 1 -t "H_LeThuy" -n 3 -l 1
   
 The train.sh script is used to train and evaluate 03 types of RNN models (LSTM, Bidirectional LSTM, GRU) against the test set. Evaluation metrics include R^2, RMSE, MAE, and Max Error Value (The difference between the predicted value and the maximum value in the test set, also known as the peak value during the flooding season). The following parameters are available to create different data scenarios, length of inputs, and number of timesteps ahead of prediction: 
@@ -37,8 +38,10 @@ The train.sh script is used to train and evaluate 03 types of RNN models (LSTM, 
 * `--n` -- Specify the number of time lags used for the features (Default value: 3)
 * `--l` -- Specify the number of time leads used for the target variable (Default value: 1)
 
-	$ # Example of training a new model
-	$ bash bin/train.sh -s 1 -t "H_LeThuy" -n 3 -l 1
+Example of training a new model
 
-	$ # Example of loading and predicting with a pretrained model
-	$ bash bin/train.sh -m "Bi-LSTM" -n 3 -l 1
+ 	$ bash bin/train.sh -s 1 -t "H_LeThuy" -n 3 -l 1
+
+Example of loading and predicting with a pretrained model
+
+ 	$ bash bin/train.sh -m "Bi-LSTM" -n 3 -l 1
