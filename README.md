@@ -52,3 +52,7 @@ Example of training a new model. The model will be saved as an HDF5 object in th
 Including the `--p` flag will indicate the use of a pretrained model
 
  	$ bash bin/train.sh -p -m "Bi-LSTM" -n 3 -l 1
+
+The clear.sh script will postprocessing files in the /data/postprocess folder
+
+	$ bash bin/clear.sh
