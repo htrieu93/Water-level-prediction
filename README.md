@@ -11,10 +11,18 @@ Recent versions of TensorFlow, keras and sklearn are required. You can install a
 
 ### Running the code
 
-The preprocess.sh script is used to preprocess raw inputs (including historical data of rainfall and water level for the 3 stations Kien Giang, Dong Hoi, Le Thuy. The following parameters are available to create different data scenarios, length of inputs, and number of timesteps ahead of prediction: 
-* `--scenario` -- Used to create different data scenarios in our paper (Scenario 1: Only use historical water level data, Scenario 2: Use historical water level and rainfall data, and Scenario 3: Use hitorical water level, rainfall, and average predicting rainfall data)
-* `--target` -- Used to specify the target columns. Our paper has experimented with 
+The preprocess.sh script is used to preprocess raw inputs (including historical data of rainfall and water level for the 3 stations Kien Giang, Dong Hoi, and Le Thuy. The following parameters are available to create different data scenarios, length of inputs, and number of timesteps ahead of prediction: 
+* `--s` -- Different data scenarios in our paper (Scenario 1: Only use historical water level data, Scenario 2: Use historical water level and rainfall data, and Scenario 3: Use hitorical water level, rainfall, and average predicting rainfall data) (Default value: 1)
+* `--t` -- Specify the target columns. Our paper has experimented with predicting the water level at 03 stations Kien Giang (H_KienGiang), Dong Hoi (H_DongHoi), and Le Thuy (H_LeThuy) (Default value: "H_LeThuy")
+* `--n` -- Specify the number of time lags used for the features (Default value: 3)
+* `--l` -- Specify the number of time leads used for the target variable (Default value: 1)
 
-#### Input format
+The train.sh script is used to train and evaluate 03 types of RNN models (LSTM, Bidirectional LSTM, GRU) against the test set. Evaluation metrics include R^2, RMSE, MAE, and Max Error Value (The difference between the predicted value and the maximum value in the test set, also known as the peak value during the flooding season). The following parameters are available to create different data scenarios, length of inputs, and number of timesteps ahead of prediction: 
+* `--p` -- Whether to use pretrained model (Default value: False)
+* `--m` -- Specify the type of model to train and predict ("LSTM", "Bi-LSTM", "GRU") (Default value: "LSTM")
+* `--n` -- Specify the number of time lags used for the features (Default value: 3)
+* `--l` -- Specify the number of time leads used for the target variable (Default value: 1)
 
-Tbd.
+#### Data input
+
+The data input 
