@@ -40,8 +40,8 @@ The train.sh script is used to train and evaluate 03 types of RNN models (LSTM, 
 
 Example of training a new model
 
- 	$ bash bin/train.sh -s 1 -t "H_LeThuy" -n 3 -l 1
+ 	$ bash bin/train.sh -m "LSTM" -n 3 -l 1
 
-Example of loading and predicting with a pretrained model
+Including the `--p` flag will indicate the use of a pretrained model (Saved in the /model folder
 
- 	$ bash bin/train.sh -m "Bi-LSTM" -n 3 -l 1
+ 	$ bash bin/train.sh -p -m "Bi-LSTM" -n 3 -l 1
