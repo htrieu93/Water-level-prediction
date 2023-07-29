@@ -8,6 +8,7 @@ from model import LSTM_model, GRU_model, BiLSTM_model
 from src.utils.metrics import calculate_loss
 from src.utils.write_result import write_result
 from src import config
+from src.utils.set_global_variables import scenario, n_steps, lead_time, target
 
 # Model params
 n_units = 150
@@ -21,24 +22,23 @@ logger = logging.getLogger('loggers')
 
 parser = argparse.ArgumentParser(
                     prog='WaterLevelPrediction',
-                    description='Preprocessing data for the water prediction paper')
+                    description='Training and predicting with RNN models')
 
 parser.add_argument('-p', '--pretrain', action='store_true')
 parser.add_argument('-m', '--model')
-parser.add_argument('-n', '--n_steps', type=int)
-parser.add_argument('-l', '--lead_time', type=int)
 
 args = parser.parse_args()
 
 def load_model_data():
     os.chdir(os.getcwd() + r'/data/postprocess')
-    trainX = pickle.load(open(f'x_train_rescale_{args.n_steps}_lag_{args.lead_time}_lead.pkl', 'rb'))
-    trainY = pickle.load(open(f'y_train_rescale_{args.n_steps}_lag_{args.lead_time}_lead.pkl', 'rb'))
-    testX = pickle.load(open(f'x_test_rescale_{args.n_steps}_lag_{args.lead_time}_lead.pkl', 'rb'))
-    testY = pickle.load(open(f'y_test_rescale_{args.n_steps}_lag_{args.lead_time}_lead.pkl', 'rb'))
-    trueY = pickle.load(open(f'y_test_{args.n_steps}_lag_{args.lead_time}_lead.pkl', 'rb'))
-    return trainX, trainY, testX, testY, trueY
-
+    try:
+        trainX = pickle.load(open(f'x_train_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl', 'rb'))
+        trainY = pickle.load(open(f'y_train_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl', 'rb'))
+        testX = pickle.load(open(f'x_test_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl', 'rb'))
+        testY = pickle.load(open(f'y_test_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl', 'rb'))
+        trueY = pickle.load(open(f'y_test_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl', 'rb'))
+        return trainX, trainY, testX, testY, trueY.
+xcccccccccccccxxxxxxxxxxxxxxxxxxx
 def train(trainX, trainY, testX, testY, model_name,
           pretrain=True, n_units=n_units, dropout=dropout,
           lr=learning_rate, epochs=epochs, batch_size=batch_size):
@@ -80,8 +80,8 @@ def predict(testX, trueY,
     logger.info(f'MAE: {mae}')
     logger.info(f'Max Error Value: {max_val_error}')
     logger.info('-' * 30)
-    model.save(f'../../model/{model_name}_{args.n_steps}_lag_{args.lead_time}_lead.h5')
-    logger.info(f'Model saved at ../../model/{model_name}_{args.n_steps}_lag_{args.lead_time}_lead.h5')
+    model.save(f'../../model/{model_name}_{n_steps}_lag_{lead_time}_lead.h5')
+    logger.info(f'Model saved at ../../model/{model_name}_{n_steps}_lag_{lead_time}_lead.h5')
 
 if __name__ == '__main__':
     logger.info('Load data for modelling...')

@@ -45,7 +45,6 @@ echo "scenario: $scenario"
 echo "target: $target"
 echo "lag_time: $n_steps"
 echo "lead_time: $lead_time"
-echo "scenario: $scenario"
 
 python ${PWD}/src/preprocess/preprocess.py --s $scenario --t $target --n $n_steps --l $lead_time \
         > logs/preprocess_`date '+%s'` 2>&1

@@ -4,15 +4,15 @@ import numpy as np
 import pandas as pd
 from statsmodels.graphics.tsaplots import plot_pacf
 
-def plot_pacf(df, lags=20):
+def plot_pacf_tar(df, target_col, lags=20):
     fig, ax = plt.subplots(figsize=(12, 12))
     plt.rcParams['font.size'] = '22'
-    plot_pacf(df.iloc[:,0], lags=lags, zero=False, alpha=0.05, ax=ax)
+    plot_pacf(df.iloc[:,0], lags=lags, zero=True, alpha=0.5, ax=ax)
     ax.set_xticks(range(0,20,2))
     ax.set_xlabel('Lag(s)')
     ax.set_ylabel('Partial Autocorrelation')
     ax.set_title(None)
-    plt.savefig('../../pacf_plot.png')
+    plt.savefig(f'../../plot/pacf_plot_{target_col}.png')
 
 def plot_avg_water_level(df, date_df, target_col):
     avg_water_level = pd.concat([df[target_col], date_df], axis=1)
@@ -26,16 +26,16 @@ def plot_avg_water_level(df, date_df, target_col):
 
     fig, ax = plt.subplots(figsize=(22, 10))
     plt.rcParams['font.size'] = '20'
-    sns.boxplot(x=months, y=avg_water_lvl, ax=ax)
+    sns.boxplot(data=avg_water_level, x='Month', y=target_col, ax=ax)
     ax.set_xticklabels(['January', 'February', 'March', 'April', 'May', 'June', 'July',
                         'August', 'September', 'October', 'November', 'December'], rotation=45)
     ax.set_xlabel(None)
-    ax.set_ylabel('Le Thuy water level (m)')
+    ax.set_ylabel(f'{target_col[1:]} water level (m)')
     plt.axhline(y = third_warning_level, color = 'r', label='Alarm 3 (H = 2.7m)')
     plt.axhline(y = second_warning_level, color = 'r', linestyle = '--', label='Alarm 2 (H = 2.2m)')
     plt.axhline(y = first_warning_level, color = 'r', linestyle = ':', label='Alarm 1 (H = 1.2m)')
     plt.legend(loc='upper left')
-    plt.savefig('../../yearly_avg_water_level.png')
+    plt.savefig(f'../../plot/yearly_avg_water_level_{target_col}.png')
 
 def plot_compare_params(R2, RMSE, MAE, MEV, param,
                         xlabel,
