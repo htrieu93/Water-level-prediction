@@ -80,17 +80,17 @@ if __name__ == '__main__':
 
     logger.info('Saving training data...')
     pickle.dump(trainX_rescale,
-                open(f'../postprocess/x_train_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl',
+                open(f'../postprocess/x_train_rescale_s{scenario}_{target}_{n_steps}_lag_{lead_time}_lead.pkl',
                      'wb'))
     pickle.dump(trainY_rescale,
-                open(f'../postprocess/y_train_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl',
+                open(f'../postprocess/y_train_rescale_s{scenario}_{target}_{n_steps}_lag_{lead_time}_lead.pkl',
                      'wb'))
     pickle.dump(testX_rescale,
-                open(f'../postprocess/x_test_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl',
+                open(f'../postprocess/x_test_rescale_s{scenario}_{target}_{n_steps}_lag_{lead_time}_lead.pkl',
                      'wb'))
     pickle.dump(testY_rescale,
-                open(f'../postprocess/y_test_rescale_s{scenario}_{n_steps}_lag_{lead_time}_lead.pkl',
+                open(f'../postprocess/y_test_rescale_s{scenario}_{target}_{n_steps}_lag_{lead_time}_lead.pkl',
                      'wb'))
     pickle.dump(testY,
-                open(f'../postprocess/y_test_s{scenario}_{n_steps}_{n_steps}_lag_{lead_time}_lead.pkl',
+                open(f'../postprocess/y_test_s{scenario}_{n_steps}_{target}_{n_steps}_lag_{lead_time}_lead.pkl',
                      'wb'))

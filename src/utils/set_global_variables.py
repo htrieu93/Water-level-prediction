@@ -12,16 +12,13 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-s', '--scenario', type=int)
 parser.add_argument('-n', '--n_steps', type=int)
 parser.add_argument('-l', '--lead_time', type=int)
-parser.add_argument('-y', '--target')
+parser.add_argument('-t', '--target', type=int)
+parser.add_argument('-m', '--model', type=int)
 
 args = parser.parse_args()
 
-global scenario
-global lead_time
-global n_steps
-global target
-
 scenario = args.scenario
-target = args.target
 lead_time = args.lead_time
 n_steps = args.n_steps
+target = args.target
+model_name = args.model

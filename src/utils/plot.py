@@ -58,10 +58,10 @@ def plot_model_loss(train_loss, val_loss):
     plt.figure(figsize=(15, 8))
     plt.plot(train_loss)
     plt.plot(val_loss)
-    plt.title('train loss vs. val loss')
+    plt.title('modelling loss vs. val loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
-    plt.legend(['train', 'val'], loc='upper left')
+    plt.legend(['modelling', 'val'], loc='upper left')
     plt.show()
 
 def plot_compare_result(df, LSTM_pred, GRU_pred, BiLSTM_pred, y_true, n_steps, lead_time, train_ratio):
