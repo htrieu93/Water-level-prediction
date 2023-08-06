@@ -56,3 +56,19 @@ Including the `--p` flag will indicate the use of a pretrained model
 The clear.sh script will postprocessing files in the /data/postprocess folder
 
 	$ bash bin/clear.sh
+
+### Citation
+If you find this repository useful in your research, please consider citing the following papers:
+
+@article{1st international symposium on Integrated Flood and Sediment Management in River Basin for Sustainable Development,
+  author    = {Trieu Trung Hieu and
+  	       Ta Quang Chieu and 
+	       Nguyen Dac Hieu and 
+	       Dinh Nhat Quang and
+	       Nguyen Thanh Tung},
+  title     = {Predicting river water  in Le Thuy, Kien Giang river based on deep learning techniques},
+  year      = {2022},
+}
+
+### Contact
+If you have any questions, feel free to contact Hieu Trieu through Email (htrieu93@gmail.com) or Github issues. Pull requests are highly welcomed!
